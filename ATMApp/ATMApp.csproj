@@ -7,4 +7,19 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="App\" />
+    <None Remove="UI\" />
+    <None Remove="Domains\" />
+    <None Remove="Domains\Entities\" />
+    <None Remove="..\.editorconfig" />
+    <None Remove="Domains\Interfaces\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="App\" />
+    <Folder Include="UI\" />
+    <Folder Include="Domains\" />
+    <Folder Include="Domains\Entities\" />
+    <Folder Include="Domains\Interfaces\" />
+  </ItemGroup>
 </Project>

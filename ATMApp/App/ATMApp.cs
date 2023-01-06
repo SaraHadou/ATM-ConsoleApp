@@ -1,28 +1,77 @@
-﻿using System;
+﻿using ATMApp.Domains.Entities;
+using ATMApp.Domains.Interfaces;
+using ATMApp.UI;
 
 namespace ATMApp
 {
-    class ATMApp
+    public class ATMApp : IUserLogin
     {
-        static void Main(string[] args)
+
+        private List<UserAccount> userAccountList;
+        private UserAccount selectedAccount;
+
+
+        public void InitializeData()
         {
-            // Clear the console
-            Console.Clear();
-            // Set the title of the console
-            Console.Title = "My ATM APP";
-            // Set the text color to white
-            Console.ForegroundColor = ConsoleColor.White;
-
-            // Set the Welcoming Message
-            Console.WriteLine("\n\n--------------Welcome to Our ATM App--------------\n\n");
-            // Prompt the user to insert his card
-            Console.WriteLine("Please Insert your Card");
-            Console.WriteLine("Note: Actual ATM will accept only physical cards, " +
-                "read the card number and validate it.");
-
-
-            Console.WriteLine("\n\nPlease Enter to continue...\n");
-            Console.ReadLine();
+            userAccountList = new List<UserAccount>
+            {
+                new UserAccount { Id = 1, FullName = "John Den",   AccountNumber = 37368176381763, CardNumber = 123456, CardPin = 123456, AccountBalance = 40000.00m, IsLocked = false },
+                new UserAccount { Id = 2, FullName = "Sara clark", AccountNumber = 87683798237890, CardNumber = 123123, CardPin = 123123, AccountBalance = 50000.00m, IsLocked = false },
+                new UserAccount { Id = 3, FullName = "David Ma.",  AccountNumber = 80980980121210, CardNumber = 111222, CardPin = 111222, AccountBalance = 20000.00m, IsLocked = true  },
+            };
         }
+
+        public void CheckUserCardNumAndPassword()
+        {
+            bool isValidLogin = false;
+            while (isValidLogin == false)
+            {
+                UserAccount inputAccount = AppScreen.UserLoginForm();
+                AppScreen.LoginProgress();
+
+                foreach (UserAccount account in userAccountList)
+                {
+                    selectedAccount = account;
+
+                    if (inputAccount.CardNumber.Equals(selectedAccount.CardNumber))
+                    {
+                        selectedAccount.TotalLogin++;
+
+                        if (inputAccount.CardPin.Equals(selectedAccount.CardPin))
+                        {
+                            selectedAccount = account;
+
+                            if (selectedAccount.IsLocked || selectedAccount.TotalLogin > 3)
+                            {
+                                AppScreen.PrintLockScreen();
+                            }
+                            else
+                            {
+                                selectedAccount.TotalLogin = 0;
+                                isValidLogin = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (isValidLogin == false)
+                    {
+                        Utility.PrintMessage("\nInvalid Card Number or PIN.", false);
+                        selectedAccount.IsLocked = selectedAccount.TotalLogin == 3;
+                        if (selectedAccount.IsLocked)
+                        {
+                            AppScreen.PrintLockScreen();
+                        }
+                    }
+                    Console.Clear();
+                }
+            }
+        }
+
+
+        public void Welcome()
+        {
+            Console.WriteLine($"Welcome back, {selectedAccount.FullName}");
+        }
+
     }
 }
