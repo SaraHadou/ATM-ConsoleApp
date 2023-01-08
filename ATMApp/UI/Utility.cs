@@ -1,10 +1,15 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
+using System;
+using System.Globalization;
 
 namespace ATMApp.UI
 {
 	public static class Utility
 	{
+        private static int TransactionId;
+        private static CultureInfo culture = new CultureInfo("en-US");
+
+
         public static string GetSecretInput(string prompt)
         {
             bool isPrompt = true;
@@ -89,6 +94,19 @@ namespace ATMApp.UI
             Console.WriteLine("\n\nPlease Enter to continue...\n");
             Console.ReadLine();
         }
+
+
+        public static string FormatAmount(decimal amount)
+        {
+            return String.Format(culture, "{0:C2}", amount);
+        }
+
+
+        public static int GetTransactionId()
+        {
+            return TransactionId++;
+        }
+
 
     }
 }
