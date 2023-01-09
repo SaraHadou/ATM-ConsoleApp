@@ -2,7 +2,7 @@
 
 namespace ATMApp.UI
 {
-	public static class AppScreen
+	public class AppScreen
 	{
 
         internal const string currency = "$";
@@ -128,6 +128,17 @@ namespace ATMApp.UI
                     break;
             }                
         }
+
+
+        internal InternalTransfer InternalTransferForm()
+        {
+            var internalTransfer = new InternalTransfer();
+            internalTransfer.RecipientAccountNumber = Validator.Convert<long>("recipient's account number:"); ;
+            internalTransfer.RecipientAccountName = Utility.GetUserInput("recipient's name:");
+            internalTransfer.TransferAmount = Validator.Convert<decimal>($"amount {currency}:");
+            return internalTransfer;
+        }
+
     }
 }
 

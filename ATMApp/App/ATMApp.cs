@@ -11,7 +11,7 @@ namespace ATMApp
         private List<UserAccount> userAccountList;
         private UserAccount selectedAccount;
         private List<Transaction> _ListOfTransactions;
-
+        private AppScreen screen = new AppScreen();
 
         public void InitializeData()
         {
@@ -96,10 +96,11 @@ namespace ATMApp
                     MakeWithdrawal();
                     break;
                 case (int)AppMenu.InternalTransfer:
-                    Console.WriteLine("Making internal transfer...");
+                    var internalTransfer = screen.InternalTransferForm();
+                    ProcessInternalTransfer(internalTransfer);
                     break;
                 case (int)AppMenu.ViewTransactions:
-                    Console.WriteLine("Viewing transactions...");
+                    ViewTransaction();
                     break;
                 case (int)AppMenu.Logout:
                     AppScreen.LogoutProgress();
@@ -149,7 +150,8 @@ namespace ATMApp
             InsertTransaction(selectedAccount.Id, TransactionType.Deposit, transactionAmount, "");
             // Update Account balance
             selectedAccount.AccountBalance += transactionAmount;
-            // Print succesful message
+
+            // Success message
             Utility.PrintMessage($"\nYour deposit of {Utility.FormatAmount(transactionAmount)} was succesful.", true);
         }
 
@@ -161,7 +163,7 @@ namespace ATMApp
 
             Console.WriteLine("\nSummary:");
             Console.WriteLine("----------");
-            Console.WriteLine($"{AppScreen.currency}100 X {hundredCount} = {Utility.FormatAmount(hundredCount * 100)}" );
+            Console.WriteLine($"{AppScreen.currency}100 X {hundredCount} = {Utility.FormatAmount(hundredCount * 100)}");
             Console.WriteLine($"{AppScreen.currency}50  X {fiftyCount} = {Utility.FormatAmount(fiftyCount * 50)}");
             Console.WriteLine($"Total amount: {Utility.FormatAmount(amount)}");
 
@@ -214,7 +216,8 @@ namespace ATMApp
             InsertTransaction(selectedAccount.Id, TransactionType.Withdrawal, -transactionAmount, "");
             // Update Account balance
             selectedAccount.AccountBalance -= transactionAmount;
-            // Print succesful message
+
+            // Success message
             Utility.PrintMessage($"\nYou have successfully withdrawn {Utility.FormatAmount(transactionAmount)}", true);
         }
 
@@ -238,6 +241,50 @@ namespace ATMApp
         public void ViewTransaction()
         {
             throw new NotImplementedException();
+        }
+
+
+        private void ProcessInternalTransfer(InternalTransfer internalTransfer)
+        {
+            if (internalTransfer.TransferAmount <= 0)
+            {
+                Utility.PrintMessage("Transfer amount should be more than zero. Try again.", false);
+                return;
+            }
+            if (internalTransfer.TransferAmount > selectedAccount.AccountBalance)
+            {
+                Utility.PrintMessage($"Transfer failed. You don't have enough balance to transfer " +
+                    $"{Utility.FormatAmount(internalTransfer.TransferAmount)}.", false);
+                return;
+            }
+
+            var selectedRecieverAccount = (from userAccount in userAccountList
+                                           where userAccount.AccountNumber == internalTransfer.RecipientAccountNumber
+                                           select userAccount).FirstOrDefault();
+            if (selectedRecieverAccount == null)
+            {
+                Utility.PrintMessage("Transfer failed. Reciever's account number is invalid.", false);
+                return;
+            }
+            if (selectedRecieverAccount.FullName != internalTransfer.RecipientAccountName)
+            {
+                Utility.PrintMessage("Transfer failed. Incorrect reciever's account name.", false);
+                return;
+            }
+
+            // Sender
+            InsertTransaction(selectedAccount.Id, TransactionType.Transfer, -internalTransfer.TransferAmount,
+                $"Transfered to {selectedRecieverAccount.AccountNumber} ({selectedRecieverAccount.FullName})");
+            selectedAccount.AccountBalance -= internalTransfer.TransferAmount;
+
+            // Reciever
+            InsertTransaction(selectedRecieverAccount.Id, TransactionType.Transfer, internalTransfer.TransferAmount,
+                $"Transfered from {selectedAccount.AccountNumber} ({selectedAccount.FullName})");
+            selectedRecieverAccount.AccountBalance += internalTransfer.TransferAmount;
+
+            // Success message
+            Utility.PrintMessage($"\nYou have successfully transfered {Utility.FormatAmount(internalTransfer.TransferAmount)}" +
+                $"to {internalTransfer.RecipientAccountName}", true);
         }
     }
 }
