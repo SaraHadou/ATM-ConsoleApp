@@ -14,7 +14,7 @@ namespace ATMApp.UI
             Console.Title = "My ATM APP";
             Console.ForegroundColor = ConsoleColor.White;
 
-            Console.WriteLine("\n\n--------------Welcome to Our ATM App--------------\n\n");
+            Console.WriteLine("\n\n------------------------- Welcome to Our ATM App -----------------------\n\n");
             Console.WriteLine("Please Insert your Card");
             Console.WriteLine("Note: Actual ATM will accept only physical cards, " +
                 "read the card number and validate it.");
@@ -69,7 +69,7 @@ namespace ATMApp.UI
             Console.WriteLine("4. Transfer                   :");
             Console.WriteLine("5. Transactions               :");
             Console.WriteLine("6. Logout                     :");
-
+            Console.WriteLine("-------------------------------");
         }
 
 
@@ -81,7 +81,53 @@ namespace ATMApp.UI
         }
 
 
+        internal static int SelectAmount()
+        {
+            Console.WriteLine("");
+            Console.WriteLine("1. {0} 50      5. {0} 500  ", currency);
+            Console.WriteLine("2. {0} 100     6. {0} 1,000", currency);
+            Console.WriteLine("3. {0} 200     7. {0} 2,000", currency);
+            Console.WriteLine("4. {0} 400     8. {0} 4,000", currency);
+            Console.WriteLine("0. Other                   ");
+            Console.WriteLine("");
 
+            int selectedAmount = Validator.Convert<int>("option:");
+
+            switch (selectedAmount)
+            {
+                case 1:
+                    return 50;
+                    break;
+                case 2:
+                    return 100;
+                    break;
+                case 3:
+                    return 200;
+                    break;
+                case 4:
+                    return 400;
+                    break;
+                case 5:
+                    return 500;
+                    break;
+                case 6:
+                    return 1000;
+                    break;
+                case 7:
+                    return 2000;
+                    break;
+                case 8:
+                    return 4000;
+                    break;
+                case 0:
+                    return 0;
+                    break;
+                default:
+                    Utility.PrintMessage("Invalid input. Try again");
+                    return -1;
+                    break;
+            }                
+        }
     }
 }
 

@@ -24,6 +24,8 @@ namespace ATMApp
                 new UserAccount { Id = 3, FullName = "David Ma.", AccountNumber = 80980980121210,
                     CardNumber = 111222, CardPin = 111222, AccountBalance = 20000.00m, IsLocked = true  },
             };
+
+            _ListOfTransactions = new List<Transaction>();
         }
 
 
@@ -91,7 +93,7 @@ namespace ATMApp
                     PlaceDeposit();
                     break;
                 case (int)AppMenu.MakeWithdrawal:
-                    Console.WriteLine("Making withdrawal...");
+                    MakeWithdrawal();
                     break;
                 case (int)AppMenu.InternalTransfer:
                     Console.WriteLine("Making internal transfer...");
@@ -143,11 +145,10 @@ namespace ATMApp
                 return;
             }
 
+            // Store in transaction object
+            InsertTransaction(selectedAccount.Id, TransactionType.Deposit, transactionAmount, "");
             // Update Account balance
             selectedAccount.AccountBalance += transactionAmount;
-
-            InsertTransaction(selectedAccount.Id, TransactionType.Deposit, transactionAmount, "");
-                
             // Print succesful message
             Utility.PrintMessage($"\nYour deposit of {Utility.FormatAmount(transactionAmount)} was succesful.", true);
         }
@@ -161,7 +162,7 @@ namespace ATMApp
             Console.WriteLine("\nSummary:");
             Console.WriteLine("----------");
             Console.WriteLine($"{AppScreen.currency}100 X {hundredCount} = {Utility.FormatAmount(hundredCount * 100)}" );
-            Console.WriteLine($"{AppScreen.currency}50  X {fiftyCount}   = {Utility.FormatAmount(fiftyCount   *  50)}");
+            Console.WriteLine($"{AppScreen.currency}50  X {fiftyCount} = {Utility.FormatAmount(fiftyCount * 50)}");
             Console.WriteLine($"Total amount: {Utility.FormatAmount(amount)}");
 
             int option = Validator.Convert<int>("1 to confirm");
@@ -171,7 +172,50 @@ namespace ATMApp
 
         public void MakeWithdrawal()
         {
-            throw new NotImplementedException();
+
+            var transactionAmount = 0;
+            int selectedAmount = AppScreen.SelectAmount();
+
+            if (selectedAmount == -1)
+            {
+                MakeWithdrawal();
+                return;
+            }
+            else if (selectedAmount == 0)
+            {
+                transactionAmount = Validator.Convert<int>($"amount {AppScreen.currency}");
+            }
+            else
+            {
+                transactionAmount = selectedAmount;
+            }
+
+            // Amount validation
+            if (transactionAmount <= 0)
+            {
+                Utility.PrintMessage("\nTransaction Failed. Amount needs to be greater than zero. Try again.", false);
+                return;
+            }
+            if (transactionAmount % 50 != 0)
+            {
+                Utility.PrintMessage("\nTransaction Failed. Amount should be in multiples of 50 or 100. Try again.", false);
+                return;
+            }
+
+            // Business Logic Validation
+            if (transactionAmount > selectedAccount.AccountBalance)
+            {
+                Utility.PrintMessage($"\nTransaction Failed. Your balance is too low to withdraw" +
+                    $" {Utility.FormatAmount(transactionAmount)}.", false);
+                return;
+            }
+
+            // Store in transaction object
+            InsertTransaction(selectedAccount.Id, TransactionType.Withdrawal, -transactionAmount, "");
+            // Update Account balance
+            selectedAccount.AccountBalance -= transactionAmount;
+            // Print succesful message
+            Utility.PrintMessage($"\nYou have successfully withdrawn {Utility.FormatAmount(transactionAmount)}", true);
         }
 
 
