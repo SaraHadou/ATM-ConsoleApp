@@ -15,6 +15,8 @@
     <None Remove="..\.editorconfig" />
     <None Remove="Domains\Interfaces\" />
     <None Remove="Domains\Enums\" />
+    <None Remove="ConsoleTables" />
+    <None Remove="ConsoleTable" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App\" />
@@ -23,5 +25,9 @@
     <Folder Include="Domains\Entities\" />
     <Folder Include="Domains\Interfaces\" />
     <Folder Include="Domains\Enums\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="ConsoleTable" Version="1.0.1.1" />
+    <PackageReference Include="ConsoleTables" Version="2.4.1" />
   </ItemGroup>
 </Project>

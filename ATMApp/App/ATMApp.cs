@@ -3,6 +3,7 @@ using ATMApp.Domains.Enums;
 using ATMApp.Domains.Interfaces;
 using ATMApp.UI;
 
+
 namespace ATMApp
 {
     public class ATMApp : IUserLogin, IUserAccountActions, ITransaction
@@ -34,8 +35,11 @@ namespace ATMApp
             AppScreen.Welcome();
             CheckUserCardNumAndPassword();
             AppScreen.WelcomeCustomer(selectedAccount.FullName);
-            AppScreen.DisplayAppMenu();
-            ProcessMenuOption();
+            while (true)
+            {
+                AppScreen.DisplayAppMenu();
+                ProcessMenuOption();
+            }           
         }
 
 
@@ -240,8 +244,24 @@ namespace ATMApp
 
         public void ViewTransaction()
         {
-            throw new NotImplementedException();
+            var filteredTransactionList = _ListOfTransactions.Where(t => t.UserAccountId == selectedAccount.Id).ToList();
+            if (filteredTransactionList.Count <= 0)
+            {
+                Utility.PrintMessage("You have no transaction yet.", true);
+            }
+            else
+            {
+                var table = new ConsoleTables.ConsoleTable("Id", "Transaction Date", "Type", "Descriptions", "Amount " + AppScreen.currency);
+                foreach (var transaction in filteredTransactionList)
+                {
+                    table.AddRow(transaction.TransactionId, transaction.TransactionDate, transaction.TransactionType, transaction.Description, transaction.TransactionAmount);
+                }
+                table.Options.EnableCount = false;
+                table.Write();
+                Utility.PrintMessage($"You have {filteredTransactionList.Count} transaction(s)", true);
+            }
         }
+            
 
 
         private void ProcessInternalTransfer(InternalTransfer internalTransfer)
